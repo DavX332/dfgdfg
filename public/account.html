@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Личный кабинет</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="container nav">
+    <div class="brand"><span class="logo">📄</span> ФайлыПро</div>
+    <nav class="nav-links">
+      <a class="btn ghost small" href="index.html">Витрина</a>
+      <a class="btn ghost small" href="create.html">ИИ-студия</a>
+      <span class="nav-actions"></span>
+    </nav>
+  </div>
+</header>
+
+<div class="container section">
+  <h1 class="section-title" id="greet">Личный кабинет</h1>
+  <p class="section-sub" id="result-line"></p>
+
+  <div id="content">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+(async function () {
+  const okBox = (cls, txt) => { const el = document.getElementById('result-line'); el.textContent = txt; el.style.color = cls === 'ok' ? 'var(--good)' : 'var(--warn)'; return el; };
+
+  const res = new URLSearchParams(location.search).get('result');
+  if (res === 'success') okBox('ok', '✓ Оплата прошла. Подписка активирована!');
+  else if (res === 'pending') okBox('', '⏳ Платёж ещё обрабатывается. Обновите страницу через минуту.');
+  else if (res === 'error') okBox('err', 'Не удалось найти заказ. Обратитесь в поддержку.');
+
+  const me = await getMe();
+  if (!me) { redirect(); return; }
+  localStorage.setItem('me', JSON.stringify(me));
+  if (me.isAdmin) {
+    const el = document.querySelector('.nav-actions');
+    el.insertAdjacentHTML('beforeend', '<a class="btn small" href="admin.html">Админка</a>');
+  }
+  document.querySelector('.nav-actions').insertAdjacentHTML('beforeend',
+    '<a class="btn ghost small" onclick="logout()">Выйти</a>');
+  document.getElementById('greet').textContent = 'Здравствуйте, ' + (me.name || '') + '!';
+
+  loadAccount();
+
+  async function loadAccount() {
+    try {
+      const data = await API.get('/api/account');
+      const box = document.getElementById('content');
+
+      const filesHtml = data.files.length ? `
+        <h2 class="section-title" style="font-size:20px;">Ваши файлы (${data.files.length})</h2>
+        ${data.files.map(f => {
+          const t = TYPE_META[f.type] || TYPE_META.file;
+          return `
+            <div class="file-row">
+              <div class="grow">
+                <div class="fname">${t.icon} ${esc(f.title)}</div>
+                <div class="fmeta">${esc(f.fileName)} · ${fmtSize(f.size)} · ${esc(f.categoryLabel)}</div>
+              </div>
+              <button class="btn green small" onclick="downloadFile('${f.id}')">Скачать</button>
+            </div>`;
+        }).join('')}`
+        : '<div class="empty">В каталоге пока нет файлов.</div>';
+
+      box.innerHTML = filesHtml;
+    } catch (e) {
+      if (e.status === 401) { redirect(); return; }
+      document.getElementById('content').innerHTML = `<div class="empty">Ошибка: ${esc(e.message)}</div>`;
+    }
+  }
+})();
+
+function redirect() {
+  location.href = 'auth.html?mode=login';
+}
+
+async function downloadFile(id) {
+  try {
+    const res = await fetch(`/api/file/${id}/download`, { headers: { Authorization: 'Bearer ' + API.token() } });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Ошибка'); }
+    const blob = await res.blob();
+    const cd = res.headers.get('content-disposition') || '';
+    const m = cd.match(/filename="?([^";]+)"?/i);
+    const name = m ? decodeURIComponent(m[1]) : 'file';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click();
+    a.remove(); URL.revokeObjectURL(url);
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+</script>
+</body>
+</html>

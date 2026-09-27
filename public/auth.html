@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход / Регистрация</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body style="display:grid;place-items:center;min-height:100vh;">
+
+<div class="modal" style="max-width:400px;">
+  <a href="index.html" style="float:right;color:var(--muted)">✕</a>
+  <h2 id="auth-title">Вход</h2>
+
+  <div class="error-box" id="err"></div>
+  <div class="success-box" id="ok"></div>
+
+  <form id="form" onsubmit="doAuth(event)">
+    <div class="field" id="name-field" style="display:none;">
+      <label>Имя</label>
+      <input id="name" autocomplete="name" placeholder="Как вас зовут">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email" required autocomplete="email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label>Пароль</label>
+      <input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="Не короче 6 символов">
+    </div>
+    <button class="btn block" id="submit-btn" style="font-size:15px;padding:12px;">Войти</button>
+  </form>
+
+  <p class="hint" id="switch-hint">
+    Нет аккаунта? <a onclick="toggleMode()">Регистрация</a>
+  </p>
+  <p class="hint" style="margin-top:6px;">
+    <a href="index.html">← Вернуться на витрину</a>
+  </p>
+</div>
+
+<script src="app.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+let mode = params.get('mode') === 'register' ? 'register' : 'login';
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('auth-title').textContent = m === 'login' ? 'Вход' : 'Регистрация';
+  document.getElementById('name-field').style.display = m === 'register' ? '' : 'none';
+  document.getElementById('submit-btn').textContent = m === 'login' ? 'Войти' : 'Зарегистрироваться';
+  document.getElementById('switch-hint').innerHTML = m === 'login'
+    ? 'Нет аккаунта? <a onclick="toggleMode()">Регистрация</a>'
+    : 'Уже есть аккаунт? <a onclick="toggleMode()">Войти</a>';
+}
+function toggleMode() { setMode(mode === 'login' ? 'register' : 'login'); }
+setMode(mode);
+
+async function doAuth(e) {
+  e.preventDefault();
+  document.getElementById('err').classList.remove('show');
+  document.getElementById('ok').classList.remove('show');
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Подождите…';
+  const body = { email: document.getElementById('email').value, password: document.getElementById('password').value };
+  try {
+    const r = mode === 'login' ? await API.post('/api/login', body) : await API.post('/api/register', { ...body, name: document.getElementById('name').value });
+    API.setToken(r.token);
+    localStorage.setItem('me', JSON.stringify(r.user));
+    if (r.user.isAdmin) { location.href = 'admin.html'; return; }
+    location.href = 'account.html';
+  } catch (err) {
+    const el = document.getElementById('err');
+    el.textContent = err.message;
+    el.classList.add('show');
+    btn.disabled = false; btn.textContent = mode === 'login' ? 'Войти' : 'Зарегистрироваться';
+  }
+}
+</script>
+</body>
+</html>

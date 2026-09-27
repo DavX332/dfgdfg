@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Создать презентацию — ФайлыПро</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="container nav">
+    <div class="brand"><span class="logo">📄</span> ФайлыПро</div>
+    <nav class="nav-links">
+      <a href="index.html">Витрина</a>
+      <a href="account.html">Кабинет</a>
+      <span class="nav-actions"></span>
+    </nav>
+  </div>
+</header>
+
+<div class="container section" style="max-width:860px;">
+  <h1 class="section-title">ИИ-конструктор презентаций</h1>
+  <p class="section-sub">Опишите тему и критерии — ИИ соберёт готовую презентацию (.pptx) за пару минут.</p>
+
+  <div class="chat-window" id="chat">
+    <div class="chat-msg bot">
+      <div class="avatar">🚀</div>
+      <div class="bubble">
+        Привет! Я соберу презентацию по вашей теме.<br>
+        Напишите <b>тему</b> и <b>критерии</b> — например:<br>
+        <i>«Искусственный интеллект в ритейле. 8 слайдов, для инвесторов, с цифрами рынка»</i>
+      </div>
+    </div>
+  </div>
+
+  <form class="card" id="gen-form" style="margin-top:16px;" onsubmit="generate(event)">
+    <div class="field">
+      <label>Тема презентации *</label>
+      <input id="topic" required placeholder="Например: Космический туризм: рынок и перспективы">
+    </div>
+    <div class="field">
+      <label>Критерии и пожелания</label>
+      <textarea id="criteria" placeholder="Количество слайдов, аудитория, стиль, что обязательно включить, дедлайн…"></textarea>
+    </div>
+    <button class="btn block" id="gen-btn" style="font-size:15px;padding:12px;">🚀 Создать презентацию</button>
+  </form>
+
+  <h2 class="section-title" style="font-size:19px;margin-top:36px;">Мои презентации</h2>
+  <div id="my-list"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+(async function () {
+  const me = await getMe();
+  if (!me) { location.href = 'auth.html?mode=login'; return; }
+  localStorage.setItem('me', JSON.stringify(me));
+  document.querySelector('.nav-actions').innerHTML = '<a class="btn ghost small" onclick="logout()">Выйти</a>';
+  loadMine();
+})();
+
+function addMsg(role, html) {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.innerHTML = `<div class="avatar">${role === 'bot' ? '🚀' : '🧑'}</div><div class="bubble">${html}</div>`;
+  chat.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function generate(e) {
+  e.preventDefault();
+  const topic = document.getElementById('topic').value.trim();
+  const criteria = document.getElementById('criteria').value.trim();
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  addMsg('user', `Тема: <b>${esc(topic)}</b>${criteria ? '<br>Критерии: ' + esc(criteria) : ''}`);
+  addMsg('bot', '⏳ Генерирую структуру и собираю слайды… Это может занять до минуты.');
+  const loader = document.createElement('div');
+  loader.className = 'spinner';
+  document.getElementById('chat').appendChild(loader);
+
+  try {
+    const r = await API.post('/api/ai/present', { topic, criteria });
+    loader.remove();
+    addMsg('bot', `✅ Готово! Слайдов: <b>${r.slides}</b>. Файл: ${esc(r.fileName)}<br>
+      <button class="btn green small" style="margin-top:8px" onclick="download('${r.id}')">⬇️ Скачать .pptx</button>`);
+    document.getElementById('topic').value = '';
+    document.getElementById('criteria').value = '';
+    loadMine();
+  } catch (err) {
+    loader.remove();
+    addMsg('bot', `⚠️ Не получилось: ${esc(err.message)}`);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function loadMine() {
+  try {
+    const r = await API.get('/api/ai/my');
+    document.getElementById('my-list').innerHTML = r.presentations.length ? r.presentations.map(p => `
+      <div class="file-row">
+        <div class="grow">
+          <div class="fname">📄 ${esc(p.topic)}</div>
+          <div class="fmeta">${esc(p.fileName)} · создано ${fmtDate(p.createdAt)}</div>
+        </div>
+        <button class="btn green small" onclick="download('${p.id}')">Скачать</button>
+      </div>`).join('') : '<div class="empty">Здесь появятся ваши презентации.</div>';
+  } catch (e) { /* ignore */ }
+}
+
+async function download(id) {
+  try {
+    const res = await fetch(`/api/ai/present/${id}/download`, { headers: { Authorization: 'Bearer ' + API.token() } });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Ошибка'); }
+    const blob = await res.blob();
+    const cd = res.headers.get('content-disposition') || '';
+    const m = cd.match(/filename="?([^";]+)"?/i);
+    const name = m ? decodeURIComponent(m[1]) : 'presentation.pptx';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  } catch (e) { toast(e.message, false); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель — ФайлыПро</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="container nav">
+    <div class="brand"><span class="logo">⚙️</span> Админ-панель</div>
+    <nav class="nav-links">
+      <a class="btn ghost small" href="index.html">Витрина</a>
+      <a class="btn ghost small" onclick="logout()">Выйти</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container section">
+  <h1 class="section-title">Обзор</h1>
+  <div class="stats" id="stats"></div>
+
+  <div style="height:30px"></div>
+  <div style="display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+    <h2 class="section-title" style="font-size:20px;">Продукты (файлы)</h2>
+    <button class="btn small" onclick="openNewProduct()">+ Новый продукт</button>
+  </div>
+  <div id="products" style="margin-top:14px;"></div>
+
+  <p class="hint" style="margin-top:30px;">Загруженные файлы становятся доступны всем посетителям в кабинете.</p>
+</div>
+
+<div id="toast"></div>
+
+<!-- Модалка нового продукта -->
+<div class="modal-backdrop" id="new-product-backdrop">
+  <div class="modal">
+    <button class="close" onclick="closeMP()">✕</button>
+    <h2>Новый продукт</h2>
+    <form onsubmit="createProduct(event)">
+      <div class="field"><label>Название</label><input id="np-title" required></div>
+      <div class="field">
+        <label>Категория</label>
+        <select id="np-category">
+          <option value="presentation">Презентации</option>
+          <option value="excel">Таблицы Excel</option>
+          <option value="file">Прочие файлы</option>
+        </select>
+      </div>
+      <div class="field"><label>Описание</label><textarea id="np-desc"></textarea></div>
+      <button class="btn block" type="submit">Создать</button>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(async function () {
+  const me = await getMe();
+  if (!me || !me.isAdmin) { toast('Требуется вход администратора', false); setTimeout(() => location.href = 'auth.html?mode=login', 1200); return; }
+  localStorage.setItem('me', JSON.stringify(me));
+  init();
+})();
+
+function mp() { return document.getElementById('new-product-backdrop'); }
+function openNewProduct() { mp().classList.add('open'); }
+function closeMP() { mp().classList.remove('open'); }
+
+async function init() {
+  await loadProducts();
+  loadReport();
+}
+
+async function loadReport() {
+  try {
+    const r = await API.get('/api/admin/report');
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="val">${r.stats.users}</div><div class="lbl">Пользователей</div></div>
+      <div class="stat"><div class="val">${r.stats.products}</div><div class="lbl">Продуктов</div></div>
+      <div class="stat"><div class="val">${r.stats.files}</div><div class="lbl">Файлов на сайте</div></div>`;
+  } catch (e) { toast(e.message, false); }
+}
+
+async function loadProducts() {
+  try {
+    const r = await API.get('/api/admin/products');
+    document.getElementById('products').innerHTML = r.products.map(p => `
+      <div class="file-row">
+        <div class="grow">
+          <div class="fname">${esc(p.title)}</div>
+          <div class="fmeta">${esc((r.categories.find(c=>c.key===p.category)||{}).label || p.category)} · ${p.file ? esc(p.file.name) : 'файл не загружен'}</div>
+        </div>
+        <label class="btn ghost small" style="cursor:pointer">Загрузить файл
+          <input type="file" style="display:none" onchange="uploadFile('${p.id}', this)">
+        </label>
+        <button class="btn danger small" onclick="deleteProduct('${p.id}')">Удалить</button>
+      </div>`).join('') || '<div class="empty">Продуктов нет. Создайте первый.</div>';
+  } catch (e) { toast(e.message, false); }
+}
+
+async function createProduct(e) {
+  e.preventDefault();
+  await API.post('/api/admin/products', {
+    title: document.getElementById('np-title').value,
+    category: document.getElementById('np-category').value,
+    description: document.getElementById('np-desc').value
+  });
+  closeMP();
+  document.getElementById('np-title').value = '';
+  document.getElementById('np-desc').value = '';
+  toast('Продукт создан');
+  loadProducts();
+}
+
+async function uploadFile(id, input) {
+  if (!input.files.length) return;
+  try {
+    await API.upload(`/api/admin/products/${id}/upload`, input.files[0]);
+    toast('Файл загружен'); loadProducts();
+  } catch (e) { toast(e.message, false); } finally { input.value = ''; }
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Удалить продукт?')) return;
+  try { await API.del('/api/admin/products/' + id); toast('Продукт удалён'); loadProducts(); }
+  catch (e) { toast(e.message, false); }
+}
+</script>
+</body>
+</html>

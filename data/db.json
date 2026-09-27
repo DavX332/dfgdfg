@@ -1,0 +1,221 @@
+{
+  "products": [
+    {
+      "id": "pres-biz-plan",
+      "title": "Бизнес-план: шаблон презентации",
+      "type": "presentation",
+      "category": "presentation",
+      "description": "Готовый шаблон корпоративной презентации для стартапа или отчёта.",
+      "price": 0,
+      "file": null,
+      "dateAdded": null,
+      "active": true
+    },
+    {
+      "id": "pres-monthly-report",
+      "title": "Ежемесячный отчёт: дизайн-шаблон",
+      "type": "presentation",
+      "category": "presentation",
+      "description": "Аккуратная структура отчёта о продажах и метриках.",
+      "price": 0,
+      "file": null,
+      "dateAdded": null,
+      "active": true
+    },
+    {
+      "id": "excel-budget",
+      "title": "Таблица личного бюджета",
+      "type": "excel",
+      "category": "excel",
+      "description": "Готовый Excel для учёта доходов и расходов с формулами.",
+      "price": 0,
+      "file": null,
+      "dateAdded": null,
+      "active": true
+    },
+    {
+      "id": "excel-tracker",
+      "title": "Трекер задач проекта",
+      "type": "excel",
+      "category": "excel",
+      "description": "Таблица для ведения задач, сроков и статусов команды.",
+      "price": 0,
+      "file": null,
+      "dateAdded": null,
+      "active": true
+    },
+    {
+      "id": "file-checklist",
+      "title": "Чек-лист запуска продукта",
+      "type": "file",
+      "category": "file",
+      "description": "Пошаговый набор задач перед запуском продукта.",
+      "price": 0,
+      "file": null,
+      "dateAdded": null,
+      "active": true
+    }
+  ],
+  "users": [
+    {
+      "id": "admin",
+      "email": "admin@example.com",
+      "name": "Администратор",
+      "passwordHash": "14eb85dac234c3256d01769973d5233b:cb86d706c9b6b4ed55235f6067f3710c4853f032fe402b06d27fdbe3e6eb0194b960608ef2712aaa1c12b4cd5f3adae08c95c464394a8eeba5273cbef26f8bb6",
+      "isAdmin": true,
+      "subscriptions": [],
+      "createdAt": "2026-09-27T15:49:56.681Z",
+      "generated": [
+        {
+          "id": "gen-5002",
+          "topic": "История древней руси",
+          "criteria": "6 слайдов для 5 класса",
+          "file": {
+            "stored": "gen-5002.pptx",
+            "name": "История древней руси.pptx",
+            "size": 93851
+          },
+          "createdAt": "2026-09-27T15:56:55.796Z"
+        },
+        {
+          "id": "gen-5003",
+          "topic": "История древней руси",
+          "criteria": "6 слайдов большой обьем текста с картинками для 7 класса",
+          "file": {
+            "stored": "gen-5003.pptx",
+            "name": "История древней руси.pptx",
+            "size": 96016
+          },
+          "createdAt": "2026-09-27T15:57:52.151Z"
+        },
+        {
+          "id": "gen-5004",
+          "topic": "Греки",
+          "criteria": "по 1 обзацу примерно по 3 предложения в каждом",
+          "file": {
+            "stored": "gen-5004.pptx",
+            "name": "Греки.pptx",
+            "size": 102156
+          },
+          "createdAt": "2026-09-27T15:59:08.231Z"
+        },
+        {
+          "id": "gen-5006",
+          "topic": "История древней руси",
+          "criteria": "6 слайдов для 5 класса с картинками",
+          "file": {
+            "stored": "gen-5006.pptx",
+            "name": "История древней руси.pptx",
+            "size": 106319
+          },
+          "createdAt": "2026-09-27T16:08:05.713Z"
+        },
+        {
+          "id": "gen-5007",
+          "topic": "рождения и смерти за 2025 и 2026 год",
+          "criteria": "таблица exsel",
+          "file": {
+            "stored": "gen-5007.pptx",
+            "name": "рождения и смерти за 2025 и 2026 год.pptx",
+            "size": 144966
+          },
+          "createdAt": "2026-09-27T16:09:35.090Z"
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "email": "test@test.ru",
+      "name": "????",
+      "passwordHash": "22d64ab71cf488248815d3e82362a6ae:1db414d150c53baaaa0da4c792d4f1e467dfc274099cdeb51c3c5393888e0df953b71f72b8042b70ac21898c0844bc95f4c05781afc981704582252dbcfb13bd",
+      "isAdmin": false,
+      "subscriptions": [],
+      "createdAt": "2026-09-27T16:02:48.914Z",
+      "generated": [
+        {
+          "id": "gen-5005",
+          "topic": "???????? ????? ???????????? ??????? ?? 2030 ????",
+          "criteria": "????????? ??????????? ??? ??????????, 10 ???????, ? ??????? ? ???????? ?????",
+          "file": {
+            "stored": "gen-5005.pptx",
+            "name": "2030.pptx",
+            "size": 113092
+          },
+          "createdAt": "2026-09-27T16:02:51.032Z"
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "email": "check823207662@test.ru",
+      "name": "????????",
+      "passwordHash": "925a4ee8e8cf50ec1ae28884465dc6c4:34c7d9cc4e15a2b0c456f9a9152edf56cc1e56bc764f37d3dd6f46a6e222ab86990acdabaf43b743c988e4092c544e64369052408e3b3379f5d82636ae931f96",
+      "isAdmin": false,
+      "subscriptions": [],
+      "createdAt": "2026-09-27T16:05:35.697Z"
+    }
+  ],
+  "sessions": [
+    {
+      "token": "5bea046938a87e5893f3c615be4879f99d7e8377ae469a03ec31aecaa33266d6",
+      "userId": 101,
+      "createdAt": "2026-09-27T15:49:59.412Z"
+    },
+    {
+      "token": "b2837dd209c3b274165cdac49f69d914030cd9f0992d8759cc426765b8cef2aa",
+      "userId": "admin",
+      "createdAt": "2026-09-27T15:49:59.475Z"
+    },
+    {
+      "token": "5075511993150b7702479598f06e76f784306978fddcf4977acc66fb4e7dff56",
+      "userId": 101,
+      "createdAt": "2026-09-27T15:50:59.292Z"
+    },
+    {
+      "token": "42ecb0429ea05d1a055519a787d15ee490db195e477894d0ab337e948903e0a6",
+      "userId": 101,
+      "createdAt": "2026-09-27T15:55:36.977Z"
+    },
+    {
+      "token": "e924c239dbf3f35d0a5b1558fc847d285f5ad4a55e74f7abe07b312d8818f7bd",
+      "userId": "admin",
+      "createdAt": "2026-09-27T15:56:30.589Z"
+    },
+    {
+      "token": "102e2c1736e8b7cff288b4730ca45942d08c551c9225ab7471cfd0d9895d9db4",
+      "userId": 102,
+      "createdAt": "2026-09-27T16:02:48.914Z"
+    },
+    {
+      "token": "361283acb4d4f47748e3cdedbb6418360fdddf7e758cd7922f3915c7416f5b91",
+      "userId": 103,
+      "createdAt": "2026-09-27T16:05:35.698Z"
+    }
+  ],
+  "categories": [
+    {
+      "key": "presentation",
+      "label": "Презентации",
+      "color": "#6c5ce7"
+    },
+    {
+      "key": "excel",
+      "label": "Таблицы Excel",
+      "color": "#00b894"
+    },
+    {
+      "key": "file",
+      "label": "Прочие файлы",
+      "color": "#e17055"
+    }
+  ],
+  "nextId": {
+    "product": 1000,
+    "user": 103,
+    "order": 5007
+  },
+  "admin": {
+    "email": "admin@example.com",
+    "passwordHash": "14eb85dac234c3256d01769973d5233b:cb86d706c9b6b4ed55235f6067f3710c4853f032fe402b06d27fdbe3e6eb0194b960608ef2712aaa1c12b4cd5f3adae08c95c464394a8eeba5273cbef26f8bb6"
+  }
+}

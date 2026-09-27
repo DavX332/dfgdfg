@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Магазин файлов — презентации и таблицы по подписке</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="container nav">
+    <div class="brand"><span class="logo">📄</span> ФайлыПро</div>
+    <nav class="nav-links">
+      <a href="#catalog">Каталог</a>
+      <a href="create.html">ИИ-студия</a>
+      <span class="nav-auth"></span>
+    </nav>
+  </div>
+</header>
+
+<section class="hero container">
+  <div class="badge">📄 Готовые файлы и ИИ-презентации</div>
+  <h1>Презентации, таблицы Excel<br>и готовые шаблоны — <span>бесплатно</span></h1>
+  <p>Скачивайте готовые материалы и создавайте презентации по своей теме с помощью ИИ — без оплаты и подписок.</p>
+  <div class="cta">
+    <a href="#catalog" class="btn" style="font-size:16px;padding:13px 26px;">Открыть каталог</a>
+    <a href="create.html" class="btn ghost" style="font-size:16px;padding:13px 26px;">🚀 Создать презентацию ИИ</a>
+  </div>
+</section>
+
+<section class="section" id="catalog">
+  <div class="container">
+    <h2 class="section-title">Каталог файлов</h2>
+    <p class="section-sub">Скачивайте без подписки и оплаты.</p>
+    <div class="grid" id="catalog-list"></div>
+  </div>
+</section>
+
+<footer class="container">
+  ФайлыПро © 2026. Готовые файлы и генерация презентаций с помощью ИИ.
+</footer>
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+(async function init() {
+  renderAuth();
+
+  const catMeta = (k) => ({ presentation:['📊','Презентации'], excel:['📗','Таблицы Excel'], file:['📄','Прочие файлы'] }[k] || ['📄','Файлы']);
+
+  try {
+    const data = await API.get('/api/catalog');
+
+    // Каталог
+    const catEl = document.getElementById('catalog-list');
+    catEl.innerHTML = data.products.length ? data.products.map(p => {
+      const m = catMeta(p.category);
+      const downloadBtn = p.hasFile
+        ? '<a class="btn green small" href="account.html">Скачать в кабинете</a>'
+        : '<span class="meta">Файл появится позже</span>';
+      return `
+      <div class="card">
+        <div class="icon" style="background:${m[1] === 'Презентации' ? '#6c5ce7' : m[1] === 'Таблицы Excel' ? '#00b894' : '#e17055'}">${m[0]}</div>
+        <h4>${esc(p.title)}</h4>
+        <span class="chip" style="background:rgba(255,255,255,.06);color:var(--muted)">${esc(m[1])}</span>
+        <p class="desc">${esc(p.description)}</p>
+        <div class="meta">${p.hasFile ? 'Файл готов ✓' : 'Появится в библиотеке'}</div>
+        ${downloadBtn}
+      </div>`;
+    }).join('') : '<div class="empty">Файлы появятся после наполнения каталога.</div>';
+  } catch (e) {
+    document.getElementById('catalog-list').innerHTML = `<div class="empty">Не удалось загрузить каталог: ${esc(e.message)}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
